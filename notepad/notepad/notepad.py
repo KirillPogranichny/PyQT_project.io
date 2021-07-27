@@ -21,6 +21,49 @@ class MainWindow(QMainWindow):
         fixedfont.setPointSize(12)
         self.editor.setFont(fixedfont)
 
+        #################################################
+        # Код крашится
+        fontBox = QFontComboBox(self)
+        fontBox.currentFontChanged.connect(self.fontFamily)
+
+        fontSize = QComboBox(self)
+        fontSize.setEditable(True)
+
+        # Minimum number of chars displayed
+        fontSize.setMinimumContentsLength(3)
+
+        fontSize.activated.connect(self.fontSize)
+
+        # Typical font sizes
+        fontSizes = ['6', '7', '8', '9', '10', '11', '12', '13', '14',
+                     '15', '16', '18', '20', '22', '24', '26', '28',
+                     '32', '36', '40', '44', '48', '54', '60', '66',
+                     '72', '80', '88', '96']
+
+        for i in fontSizes:
+            fontSize.addItem(i)
+
+        fontColor = QAction(QIcon("images/font-color.png"), "Change font color", self)
+        fontColor.triggered.connect(self.fontColor)
+
+        backColor = QAction(QIcon("images/font-color.png"), "Change background color", self)
+        backColor.triggered.connect(self.highlight)
+
+        self.formatbar = self.addToolBar("Font settings")
+
+        self.formatbar.addWidget(fontBox)
+        self.formatbar.addWidget(fontSize)
+
+        self.formatbar.addSeparator()
+
+        self.formatbar.addAction(fontColor)
+        self.formatbar.addAction(backColor)
+
+        self.formatbar.addSeparator()
+
+        #################################################
+
+
         # self.path holds the path of the currently open file.
         # If none, we haven't got a file open yet (or creating new).
         self.path = None
@@ -116,6 +159,32 @@ class MainWindow(QMainWindow):
         self.update_title()
         self.show()
 
+
+    ##########################################
+    # Функции крашатся
+
+    def fontFamily(self, font):
+        self.text.setCurrentFont(font)
+
+    def fontSize(self, fontsize):
+        self.text.setFontPointSize(int(fontsize))
+
+    def fontColor(self):
+
+        # Get a color from the text dialog
+        color = QColorDialog.getColor()
+
+        # Set it as the new text color
+        self.text.setTextColor(color)
+
+    def highlight(self):
+
+        color = QColorDialog.getColor()
+
+        self.text.setTextBackgroundColor(color)
+
+    ###################################################
+
     def dialog_critical(self, s):
         dlg = QMessageBox(self)
         dlg.setText(s)
@@ -173,7 +242,7 @@ class MainWindow(QMainWindow):
             self.editor.print_(dlg.printer())
 
     def update_title(self):
-        self.setWindowTitle("%s - No2Pads" % (os.path.basename(self.path) if self.path else "Untitled"))
+        self.setWindowTitle("%s - Text Redactor" % (os.path.basename(self.path) if self.path else "Untitled"))
 
     def edit_toggle_wrap(self):
         self.editor.setLineWrapMode( 1 if self.editor.lineWrapMode() == 0 else 0 )
@@ -182,7 +251,7 @@ class MainWindow(QMainWindow):
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    app.setApplicationName("No2Pads")
+    app.setApplicationName("Text Redactor")
 
     window = MainWindow()
     app.exec_()
